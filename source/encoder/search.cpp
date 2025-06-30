@@ -2690,12 +2690,12 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
             cu.setPUInterDir(3, pu.puAbsPartIdx, puIdx);
             cu.setPUMv(0, bidir[0].mv, pu.puAbsPartIdx, puIdx);
             cu.setPURefIdx(0, bestME[0].ref, pu.puAbsPartIdx, puIdx);
-            cu.m_mvd[0][pu.puAbsPartIdx] = bidir[0].mv - bidir[0].mvp;
+            cu.m_mvd[0][pu.puAbsPartIdx] = x265_clip3(-32768,32767, bidir[0].mv - bidir[0].mvp);
             cu.m_mvpIdx[0][pu.puAbsPartIdx] = bidir[0].mvpIdx;
 
             cu.setPUMv(1, bidir[1].mv, pu.puAbsPartIdx, puIdx);
             cu.setPURefIdx(1, bestME[1].ref, pu.puAbsPartIdx, puIdx);
-            cu.m_mvd[1][pu.puAbsPartIdx] = bidir[1].mv - bidir[1].mvp;
+            cu.m_mvd[1][pu.puAbsPartIdx] = x265_clip3(-32768,32767, bidir[1].mv - bidir[1].mvp);
             cu.m_mvpIdx[1][pu.puAbsPartIdx] = bidir[1].mvpIdx;
 
             totalmebits += bidirBits;
@@ -2708,7 +2708,7 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
             cu.setPUInterDir(1, pu.puAbsPartIdx, puIdx);
             cu.setPUMv(0, bestME[0].mv, pu.puAbsPartIdx, puIdx);
             cu.setPURefIdx(0, bestME[0].ref, pu.puAbsPartIdx, puIdx);
-            cu.m_mvd[0][pu.puAbsPartIdx] = bestME[0].mv - bestME[0].mvp;
+            cu.m_mvd[0][pu.puAbsPartIdx] = x265_clip3(-32768,32767, bestME[0].mv - bestME[0].mvp);
             cu.m_mvpIdx[0][pu.puAbsPartIdx] = bestME[0].mvpIdx;
 
             cu.setPURefIdx(1, REF_NOT_VALID, pu.puAbsPartIdx, puIdx);
@@ -2724,7 +2724,7 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
             cu.setPUInterDir(2, pu.puAbsPartIdx, puIdx);
             cu.setPUMv(1, bestME[1].mv, pu.puAbsPartIdx, puIdx);
             cu.setPURefIdx(1, bestME[1].ref, pu.puAbsPartIdx, puIdx);
-            cu.m_mvd[1][pu.puAbsPartIdx] = bestME[1].mv - bestME[1].mvp;
+            cu.m_mvd[1][pu.puAbsPartIdx] = x265_clip3(-32768,32767, bestME[1].mv - bestME[1].mvp);
             cu.m_mvpIdx[1][pu.puAbsPartIdx] = bestME[1].mvpIdx;
 
             cu.setPURefIdx(0, REF_NOT_VALID, pu.puAbsPartIdx, puIdx);
