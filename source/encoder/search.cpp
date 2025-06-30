@@ -2511,6 +2511,23 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
                         }
                     }
 
+                    /* MVD too big == bad
+                       Should have done the same for the mvRefine branch above... */
+                    MV clipmin((int32_t)-32768, (int32_t)-32768);
+                    MV clipmax((int32_t) 32767, (int32_t) 32767);
+                    if (bLowresMVP)
+                    {
+                        outmv -= mvp_lowres;
+                        outmv.clipped(clipmin, clipmax);
+                        outmv += mvp_lowres;
+                    }
+                    else
+                    {
+                        outmv -= mvp;
+                        outmv.clipped(clipmin, clipmax);
+                        outmv += mvp;
+                    }
+
                     /* Get total cost of partition, but only include MV bit cost once */
                     bits += m_me.bitcost(outmv);
                     uint32_t mvCost = m_me.mvcost(outmv);
