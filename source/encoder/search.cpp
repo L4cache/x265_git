@@ -2527,7 +2527,8 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
                     {
                         outmv -= mvp;
                         if (!outmv.checkRange(clipmin, clipmax))
-                            x265_log(NULL, X265_LOG_WARNING, "MVD out of range 2\n");
+                            x265_log(NULL, X265_LOG_WARNING, "MVD out of range 2: POC=%d CTU=%d mvmin=%d,%d mvmax=%d,%d mvp=%d,%d mvd=%d,%d \n", cu.m_slice->m_poc, cu.m_cuAddr,
+                            mvmin.x, mvmin.y, mvmax.x, mvmax.y, mvp.x, mvp.y, outmv.x, outmv.y);
                         outmv = outmv.clipped(clipmin, clipmax);
                         outmv += mvp;
                     }
