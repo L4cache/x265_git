@@ -2151,9 +2151,6 @@ void Search::singleMotionEstimation(Search& master, Mode& interMode, const Predi
     int satdCost = m_me.motionEstimate(&m_slice->m_mref[list][ref], mvmin, mvmax, mvp, numMvc, mvc, m_param->searchRange, outmv, m_param->maxSlices, m_vertRestriction,
       m_param->bSourceReferenceEstimation ? m_slice->m_refFrameList[list][ref]->m_fencPic->getLumaAddr(0) : 0);
 
-    x265_log(NULL, X265_LOG_FULL, "ME 1: POC=%d CTU=%d mvp=%d,%d outmv=%d,%d mvmin=%d,%d mvmax=%d,%d \n", cu.m_slice->m_poc, cu.m_cuAddr,
-        mvp.x, mvp.y, outmv.x, outmv.y, mvmin.x, mvmin.y, mvmax.x, mvmax.y);
-
     if (m_param->bEnableHME && mvp_lowres.notZero() && mvp_lowres != mvp)
     {
         MV outmv_lowres;
@@ -2499,6 +2496,9 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
                     setSearchRange(cu, mvp, m_param->searchRange, mvmin, mvmax);
                     int satdCost = m_me.motionEstimate(&slice->m_mref[list][ref], mvmin, mvmax, mvp, numMvc, mvc, m_param->searchRange, outmv, m_param->maxSlices, m_vertRestriction,
                       m_param->bSourceReferenceEstimation ? m_slice->m_refFrameList[list][ref]->m_fencPic->getLumaAddr(0) : 0);
+
+                    x265_log(NULL, X265_LOG_FULL, "ME 1: POC=%d CTU=%d mvp=%d,%d outmv=%d,%d mvmin=%d,%d mvmax=%d,%d \n", cu.m_slice->m_poc, cu.m_cuAddr,
+                        mvp.x, mvp.y, outmv.x, outmv.y, mvmin.x, mvmin.y, mvmax.x, mvmax.y);
 
                     if (m_param->bEnableHME && mvp_lowres.notZero() && mvp_lowres != mvp)
                     {
