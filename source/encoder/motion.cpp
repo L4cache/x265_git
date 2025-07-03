@@ -1596,6 +1596,12 @@ me_hex2:
     // check mv range for slice bound
     X265_CHECK(((bmv.y >= qmvmin.y) & (bmv.y <= qmvmax.y)), "mv beyond range!");
 
+    if (bmv.notZero() && !bmv.checkRange(qmvmin, qmvmax))
+    {
+        bmv = bmv.clipped(qmvmin, qmvmax);
+        bcost = subpelCompare(ref, bmv, satd) + mvcost(bmv);
+    }
+
     x265_emms();
     outQMv = bmv;
     return bcost;
