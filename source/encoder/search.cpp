@@ -2497,9 +2497,6 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
                     int satdCost = m_me.motionEstimate(&slice->m_mref[list][ref], mvmin, mvmax, mvp, numMvc, mvc, m_param->searchRange, outmv, m_param->maxSlices, m_vertRestriction,
                       m_param->bSourceReferenceEstimation ? m_slice->m_refFrameList[list][ref]->m_fencPic->getLumaAddr(0) : 0);
 
-                    x265_log(NULL, X265_LOG_FULL, "ME 1: POC=%d CTU=%d mvp=%d,%d outmv=%d,%d mvmin=%d,%d mvmax=%d,%d \n", cu.m_slice->m_poc, cu.m_cuAddr,
-                        mvp.x, mvp.y, outmv.x, outmv.y, mvmin.x, mvmin.y, mvmax.x, mvmax.y);
-
                     if (m_param->bEnableHME && mvp_lowres.notZero() && mvp_lowres != mvp)
                     {
                         MV outmv_lowres;
@@ -2512,28 +2509,6 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
                             satdCost = lowresMvCost;
                             bLowresMVP = true;
                         }
-                    }
-
-                    /* MVD too big == bad
-                       Should have done the same for the mvRefine branch above... */
-                    MV clipmin((int32_t)-32768, (int32_t)-32768);
-                    MV clipmax((int32_t) 32767, (int32_t) 32767);
-                    if (bLowresMVP)
-                    {
-                        outmv -= mvp_lowres;
-                        if (!outmv.checkRange(clipmin, clipmax))
-                            x265_log(NULL, X265_LOG_WARNING, "MVD out of range 1\n");
-                        outmv = outmv.clipped(clipmin, clipmax);
-                        outmv += mvp_lowres;
-                    }
-                    else
-                    {
-                        outmv -= mvp;
-                        if (!outmv.checkRange(clipmin, clipmax))
-                            x265_log(NULL, X265_LOG_WARNING, "MVD out of range 2: POC=%d CTU=%d mvmin=%d,%d mvmax=%d,%d mvp=%d,%d mvd=%d,%d \n", cu.m_slice->m_poc, cu.m_cuAddr,
-                            mvmin.x, mvmin.y, mvmax.x, mvmax.y, mvp.x, mvp.y, outmv.x, outmv.y);
-                        outmv = outmv.clipped(clipmin, clipmax);
-                        outmv += mvp;
                     }
 
                     /* Get total cost of partition, but only include MV bit cost once */
@@ -2677,8 +2652,6 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
             }
         }
 
-        MV clipmin((int32_t)-32768, (int32_t)-32768);
-        MV clipmax((int32_t) 32767, (int32_t) 32767);
         /* select best option and store into CU */
         if (mrgCost < bidirCost && mrgCost < bestME[0].cost && mrgCost < bestME[1].cost)
         {
@@ -2701,21 +2674,11 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
             cu.setPUMv(0, bidir[0].mv, pu.puAbsPartIdx, puIdx);
             cu.setPURefIdx(0, bestME[0].ref, pu.puAbsPartIdx, puIdx);
             cu.m_mvd[0][pu.puAbsPartIdx] = bidir[0].mv - bidir[0].mvp;
-            if (!cu.m_mvd[0][pu.puAbsPartIdx].checkRange(clipmin, clipmax))
-            {
-                x265_log(NULL, X265_LOG_WARNING, "MVD out of range 3\n");
-                cu.m_mvd[0][pu.puAbsPartIdx] = cu.m_mvd[0][pu.puAbsPartIdx].clipped(clipmin, clipmax);
-            }
             cu.m_mvpIdx[0][pu.puAbsPartIdx] = bidir[0].mvpIdx;
 
             cu.setPUMv(1, bidir[1].mv, pu.puAbsPartIdx, puIdx);
             cu.setPURefIdx(1, bestME[1].ref, pu.puAbsPartIdx, puIdx);
             cu.m_mvd[1][pu.puAbsPartIdx] = bidir[1].mv - bidir[1].mvp;
-            if (!cu.m_mvd[1][pu.puAbsPartIdx].checkRange(clipmin, clipmax))
-            {
-                x265_log(NULL, X265_LOG_WARNING, "MVD out of range 4\n");
-                cu.m_mvd[1][pu.puAbsPartIdx] = cu.m_mvd[1][pu.puAbsPartIdx].clipped(clipmin, clipmax);
-            }
             cu.m_mvpIdx[1][pu.puAbsPartIdx] = bidir[1].mvpIdx;
 
             totalmebits += bidirBits;
@@ -2729,11 +2692,6 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
             cu.setPUMv(0, bestME[0].mv, pu.puAbsPartIdx, puIdx);
             cu.setPURefIdx(0, bestME[0].ref, pu.puAbsPartIdx, puIdx);
             cu.m_mvd[0][pu.puAbsPartIdx] = bestME[0].mv - bestME[0].mvp;
-            if (!cu.m_mvd[0][pu.puAbsPartIdx].checkRange(clipmin, clipmax))
-            {
-                x265_log(NULL, X265_LOG_WARNING, "MVD out of range 5\n");
-                cu.m_mvd[0][pu.puAbsPartIdx] = cu.m_mvd[0][pu.puAbsPartIdx].clipped(clipmin, clipmax);
-            }
             cu.m_mvpIdx[0][pu.puAbsPartIdx] = bestME[0].mvpIdx;
 
             cu.setPURefIdx(1, REF_NOT_VALID, pu.puAbsPartIdx, puIdx);
@@ -2750,11 +2708,6 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
             cu.setPUMv(1, bestME[1].mv, pu.puAbsPartIdx, puIdx);
             cu.setPURefIdx(1, bestME[1].ref, pu.puAbsPartIdx, puIdx);
             cu.m_mvd[1][pu.puAbsPartIdx] = bestME[1].mv - bestME[1].mvp;
-            if (!cu.m_mvd[1][pu.puAbsPartIdx].checkRange(clipmin, clipmax))
-            {
-                x265_log(NULL, X265_LOG_WARNING, "MVD out of range 6\n");
-                cu.m_mvd[1][pu.puAbsPartIdx] = cu.m_mvd[1][pu.puAbsPartIdx].clipped(clipmin, clipmax);
-            }
             cu.m_mvpIdx[1][pu.puAbsPartIdx] = bestME[1].mvpIdx;
 
             cu.setPURefIdx(0, REF_NOT_VALID, pu.puAbsPartIdx, puIdx);

@@ -846,7 +846,6 @@ int MotionEstimate::motionEstimate(ReferencePlanes *ref,
 
     pmv = pmv.roundToFPel();
     MV omv = bmv;  // current search origin or starting point
-    MV prevm = bmv;
 
     int search = ref->isHMELowres ? (hme ? searchMethodL0 : searchMethodL1) : searchMethod;
     switch (search)
@@ -858,7 +857,6 @@ int MotionEstimate::motionEstimate(ReferencePlanes *ref,
         int i = merange;
         do
         {
-            prevm = bmv;
             COST_MV_X4_DIR(0, -1, 0, 1, -1, 0, 1, 0, costs);
             if ((bmv.y - 1 >= mvmin.y) & (bmv.y - 1 <= mvmax.y))
                 COPY1_IF_LT(bcost, (costs[0] << 4) + 1);
@@ -884,7 +882,6 @@ me_hex2:
 #if 0
         for (int i = 0; i < merange / 2; i++)
         {
-            prevm = bmv;
             omv = bmv;
             COST_MV(omv.x - 2, omv.y);
             COST_MV(omv.x - 1, omv.y + 2);
@@ -900,7 +897,6 @@ me_hex2:
 
 #else // if 0
       /* equivalent to the above, but eliminates duplicate candidates */
-        prevm = bmv;
         COST_MV_X3_DIR(-2, 0, -1, 2,  1, 2, costs);
         bcost <<= 3;
         if ((bmv.y >= mvmin.y) & (bmv.y <= mvmax.y))
@@ -931,7 +927,6 @@ me_hex2:
                 /* half hexagon, not overlapping the previous iteration */
                 for (int i = (merange >> 1) - 1; i > 0 && bmv.checkRange(mvmin, mvmax); i--)
                 {
-                    prevm = bmv;
                     COST_MV_X3_DIR(hex2[dir + 0].x, hex2[dir + 0].y,
                         hex2[dir + 1].x, hex2[dir + 1].y,
                         hex2[dir + 2].x, hex2[dir + 2].y,
@@ -1171,7 +1166,6 @@ me_hex2:
     {
         int bPointNr = 0;
         int bDistance = 0;
-        prevm = bmv;
 
         const int EarlyExitIters = 3;
         StarPatternSearch(ref, mvmin, mvmax, bmv, bcost, bPointNr, bDistance, EarlyExitIters, merange, hme);
@@ -1216,7 +1210,6 @@ me_hex2:
                 {
                     if (tmv.x + (RasterDistance * 3) <= mvmax.x)
                     {
-                        prevm = bmv;
                         pixel *pix_base = fref + tmv.y * stride + tmv.x;
                         sad_x4(fenc,
                                pix_base,
@@ -1244,7 +1237,6 @@ me_hex2:
 
         while (bDistance > 0)
         {
-            prevm = bmv;
             // center a new search around current best
             bDistance = 0;
             bPointNr = 0;
@@ -1486,12 +1478,6 @@ me_hex2:
         break;
     }
 
-    if (bmv.notZero() && !bmv.checkRange(qmvmin, qmvmax))
-    {
-        bmv = prevm;
-        bcost = subpelCompare(ref, bmv, satd) + mvcost(bmv);
-    }
-
     if (bprecost < bcost)
     {
         bmv = bestpre;
@@ -1609,12 +1595,6 @@ me_hex2:
 
     // check mv range for slice bound
     X265_CHECK(((bmv.y >= qmvmin.y) & (bmv.y <= qmvmax.y)), "mv beyond range!");
-
-    // if (bmv.notZero() && !bmv.checkRange(qmvmin, qmvmax))
-    // {
-    //     bmv = bmv.clipped(qmvmin, qmvmax);
-    //     bcost = subpelCompare(ref, bmv, satd) + mvcost(bmv);
-    // }
 
     x265_emms();
     outQMv = bmv;
