@@ -1601,13 +1601,13 @@ me_hex2:
     {
         MV clipmin((int32_t) -(1<<15),     (int32_t) -(1<<15));
         MV clipmax((int32_t)  (1<<15) - 1, (int32_t)  (1<<15) - 1);
-        bmv -= qmvp;
+        clipmin += qmvp;
+        clipmax += qmvp;
         if (!bmv.checkRange(clipmin, clipmax))
         {
             bmv = bmv.clipped(clipmin, clipmax);
             bcost = subpelCompare(ref, bmv, satd) + mvcost(bmv);
         }
-        bmv += qmvp;
     }
 
     x265_emms();
