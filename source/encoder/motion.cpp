@@ -1596,18 +1596,12 @@ me_hex2:
     // check mv range for slice bound
     X265_CHECK(((bmv.y >= qmvmin.y) & (bmv.y <= qmvmax.y)), "mv beyond range!");
 
-    // just assuming there's some special treatment for zero MVs in the spec and the MVD is not coded, I don't actually know.
+    // Get a chance to ZeroMv
     if (bmv.notZero())
     {
-        MV clipmin((int32_t) -(1<<15),     (int32_t) -(1<<15));
-        MV clipmax((int32_t)  (1<<15) - 1, (int32_t)  (1<<15) - 1);
-        clipmin += qmvp;
-        clipmax += qmvp;
-        if (!bmv.checkRange(clipmin, clipmax))
-        {
-            bmv = bmv.clipped(clipmin, clipmax);
-            bcost = subpelCompare(ref, bmv, satd) + mvcost(bmv);
-        }
+      int cost = subpelCompare(ref, MV(0, 0), satd) + mvcost(MV(0, 0));
+      if (cost <= bcost)
+        bmv = MV(0, 0);
     }
 
     x265_emms();
