@@ -2546,8 +2546,8 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
         }
 
         // to ensure the mvdLX is in the range of [-2^15, 2^15-1]
-        MV clipmin((int32_t) -(1<<15)    , (int32_t) -(1<<15)    );
-        MV clipmax((int32_t)  (1<<15) - 1, (int32_t)  (1<<15) - 1);
+        MV clipmin((int32_t) -(1<<15) - (1<<14)    , (int32_t) -(1<<15) - (1<<14)    );
+        MV clipmax((int32_t)  (1<<15) + (1<<14) - 1, (int32_t)  (1<<15) + (1<<14) - 1);
         bestME[0].mv = bestME[0].mv.clipped(bestME[0].mvp + clipmin, bestME[0].mvp + clipmax);
         bestME[1].mv = bestME[1].mv.clipped(bestME[1].mvp + clipmin, bestME[1].mvp + clipmax);
 
@@ -2657,8 +2657,8 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
                 }
             }
             // to ensure the mvdLX is in the range of [-2^15, 2^15-1]
-            MV clipmin((int32_t) -(1<<15)    , (int32_t) -(1<<15)    );
-            MV clipmax((int32_t)  (1<<15) - 1, (int32_t)  (1<<15) - 1);
+            MV clipmin((int32_t) -(1<<15) - (1<<14)    , (int32_t) -(1<<15) - (1<<14)    );
+            MV clipmax((int32_t)  (1<<15) + (1<<14) - 1, (int32_t)  (1<<15) + (1<<14) - 1);
             bidir[0].mv = bidir[0].mv.clipped(bidir[0].mvp + clipmin, bidir[0].mvp + clipmax);
             bidir[1].mv = bidir[1].mv.clipped(bidir[1].mvp + clipmin, bidir[1].mvp + clipmax);
         }
