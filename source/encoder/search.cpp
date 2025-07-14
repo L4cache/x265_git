@@ -2531,25 +2531,25 @@ void Search::predInterSearch(Mode& interMode, const CUGeom& cuGeom, bool bChroma
 
                     if (cost < bestME[list].cost)
                     {
-                        // to ensure the mvdLX is in the range of [-2^15, 2^15-1]
-                        MV clipmin((int32_t) -(1 << 15)    , (int32_t) -(1 << 15)    );
-                        MV clipmax((int32_t)  (1 << 15) - 1, (int32_t)  (1 << 15) - 1);
-                        if (outmv.checkRange(mvp + clipmin, mvp + clipmax))
-                        {
-                            bestME[list].mv      = outmv;
-                            bestME[list].mvp     = mvp;
-                            bestME[list].mvpIdx  = mvpIdx;
-                            bestME[list].ref     = ref;
-                            bestME[list].cost    = cost;
-                            bestME[list].bits    = bits;
-                            bestME[list].mvCost  = mvCost;
-                        }
+                        bestME[list].mv      = outmv;
+                        bestME[list].mvp     = mvp;
+                        bestME[list].mvpIdx  = mvpIdx;
+                        bestME[list].ref     = ref;
+                        bestME[list].cost    = cost;
+                        bestME[list].bits    = bits;
+                        bestME[list].mvCost  = mvCost;
                     }
                 }
                 /* the second list ref bits start at bit 16 */
                 refMask >>= 16;
             }
         }
+
+        // to ensure the mvdLX is in the range of [-2^15, 2^15-1]
+        MV clipmin((int32_t) -(1<<15)    , (int32_t) -(1<<15)    );
+        MV clipmax((int32_t)  (1<<15) - 1, (int32_t)  (1<<15) - 1);
+        bestME[0].mv = bestME[0].mv.clipped(bestME[0].mvp + clipmin, bestME[0].mvp + clipmax);
+        bestME[1].mv = bestME[1].mv.clipped(bestME[1].mvp + clipmin, bestME[1].mvp + clipmax);
 
         /* Bi-directional prediction */
         MotionData bidir[2];
