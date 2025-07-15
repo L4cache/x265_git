@@ -2104,8 +2104,8 @@ void Entropy::codeRefFrmIdx(const CUData& cu, uint32_t absPartIdx, int list)
 void Entropy::codeMvd(const CUData& cu, uint32_t absPartIdx, int list)
 {
     const MV& mvd = cu.m_mvd[list][absPartIdx];
-    const int hor = mvd.x & 0xffff;
-    const int ver = mvd.y & 0xffff;
+    const int16_t hor = mvd.x & 0xffff;
+    const int16_t ver = mvd.y & 0xffff;
 
     encodeBin(hor != 0 ? 1 : 0, m_contextState[OFF_MV_RES_CTX]);
     encodeBin(ver != 0 ? 1 : 0, m_contextState[OFF_MV_RES_CTX]);
